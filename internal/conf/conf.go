@@ -41,3 +41,24 @@ func ReadToken() string {
 	}
 	return cfg.Section("bot").Key("token").String()
 }
+
+func ReadUser() *ini.Section {
+	cfg, err := ini.Load(confPath())
+	if err != nil {
+		log.Fatal(err)
+	}
+	return cfg.Section("user")
+}
+
+func ReadUsrInfo() (int, int64) {
+	cfg := ReadUser()
+	channel, err := cfg.Key("channel").Int64()
+	if err != nil {
+		log.Fatal(err)
+	}
+	admin, err := cfg.Key("admin").Int()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return admin, channel
+}
