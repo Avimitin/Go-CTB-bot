@@ -1,0 +1,39 @@
+name: Contribute_bot
+on:
+    push:
+        branches: [ master ]
+jobs:
+    Build:
+        name: ctb-bot-build
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        runs-on: ubuntu-20.04
+        steps:
+            - uses: actions/checkout@master
+            - uses: actions/setup-go@master
+              with:
+                  go-version: "1.15.3"
+            - run: go get -v -t -d ./...
+
+            - name: build_linux
+              env:
+                  GOOS: linux
+                  GOARCH: amd64
+              run: go build -o bin/ctb-bot-$GOOS-$GOARCH -ldflags="-s -w" cmd/bot/cmd.go \
+
+            - name: build_windows
+              env:
+                  GOOS: windows
+                  GOARCH: amd64
+              run: go build -o bin/ctb-bot-$GOOS-$GOARCH.exe -ldflags="-s -w" cmd/bot/cmd.go
+
+            - name: Upload
+              uses: actions/upload-artifact@v2.1.4
+              with:
+                  name: windows
+                  path: bin/*-windows-*
+
+            - name: Upload
+              uses: actions/upload-artifact@v2.1.4
+              with:
+                  name: linux
+                  path: bin/*-linux-*
